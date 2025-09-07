@@ -1,0 +1,136 @@
+-- Made By JustKondzio0! if you steal it and dont give credits u are a bitch brother
+-- Saved coordinates for levitation
+local SAVED_POSITION = Vector3.new(11, 3, -122)
+local LEVITATE_SPEED = 25 -- Levitation speed in studs/second
+
+local Player = game.Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+
+-- The main container for the UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LevitationUi"
+ScreenGui.Parent = PlayerGui
+
+-- The main draggable frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 200, 0, 130)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -65)
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- The title label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, 0, 0, 20)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.Text = "DontWakeBrainrots  JustKondzio0"
+TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+TitleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+TitleLabel.BorderSizePixel = 0
+TitleLabel.Font = Enum.Font.SourceSans
+TitleLabel.TextSize = 14
+TitleLabel.Parent = MainFrame
+
+-- The close button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Position = UDim2.new(1, -20, 0, 0)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+CloseButton.Parent = MainFrame
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- The button to activate levitation
+local LevitateButton = Instance.new("TextButton")
+LevitateButton.Size = UDim2.new(0.9, 0, 0.25, 0)
+LevitateButton.Position = UDim2.new(0.05, 0, 0.3, 0)
+LevitateButton.Text = "Levitate"
+LevitateButton.TextColor3 = Color3.new(1, 1, 1)
+LevitateButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+LevitateButton.Parent = MainFrame
+
+-- The button to stop levitation
+local StopButton = Instance.new("TextButton")
+StopButton.Size = UDim2.new(0.9, 0, 0.25, 0)
+StopButton.Position = UDim2.new(0.05, 0, 0.575, 0)
+StopButton.Text = "Stop Levitation"
+StopButton.TextColor3 = Color3.new(1, 1, 1)
+StopButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+StopButton.Parent = MainFrame
+
+-- The Discord button
+local DiscordButton = Instance.new("TextButton")
+DiscordButton.Size = UDim2.new(0.9, 0, 0.2, 0)
+DiscordButton.Position = UDim2.new(0.05, 0, 0.825, 0)
+DiscordButton.Text = "Discord"
+DiscordButton.TextColor3 = Color3.new(1, 1, 1)
+DiscordButton.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+DiscordButton.Parent = MainFrame
+
+-- Logic for dragging the UI
+local isDragging = false
+local dragStartPos = Vector2.new(0, 0)
+local frameStartPos = UDim2.new(0, 0, 0, 0)
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+        dragStartPos = UserInputService:GetMouseLocation()
+        frameStartPos = MainFrame.Position
+    end
+end)
+
+MainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local mousePos = UserInputService:GetMouseLocation()
+        local delta = mousePos - dragStartPos
+        MainFrame.Position = UDim2.new(
+            frameStartPos.Scale.X, frameStartPos.Offset.X + delta.X,
+            frameStartPos.Scale.Y, frameStartPos.Offset.Y + delta.Y
+        )
+    end
+end)
+
+-- Levitation logic
+local currentBodyPosition = nil
+LevitateButton.MouseButton1Click:Connect(function()
+    local character = Player.Character or Player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Remove old BodyPosition if it exists
+    if currentBodyPosition then
+        currentBodyPosition:Destroy()
+    end
+
+    -- Create new BodyPosition for levitation
+    currentBodyPosition = Instance.new("BodyPosition")
+    currentBodyPosition.Parent = humanoidRootPart
+    currentBodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    currentBodyPosition.D = LEVITATE_SPEED * 10
+    currentBodyPosition.P = LEVITATE_SPEED * 50
+    currentBodyPosition.Position = SAVED_POSITION
+end)
+
+-- Stop levitation logic
+StopButton.MouseButton1Click:Connect(function()
+    if currentBodyPosition then
+        currentBodyPosition:Destroy()
+        currentBodyPosition = nil
+    end
+end)
+
+-- Discord Button Logic
+DiscordButton.MouseButton1Click:Connect(function()
+    setclipboard("https://discord.gg/nQ5pCft2Ve")
+end)
